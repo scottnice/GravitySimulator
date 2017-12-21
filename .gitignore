@@ -1,1 +1,3 @@
 bin/
+bazel-out/
+bazel-gravitysimulator/
