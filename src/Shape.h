@@ -23,11 +23,8 @@ public:
 			v.emplace_back(x, y, 0.0f);
 		}
 	}
-	Shape(const Shape&)=default;
-	Shape(const Shape&& rhs){
-		radius = rhs.radius;
-		v = vector<Vector3d>(std::move(rhs.v));
-	}
+	Shape(const Shape&) = default;
+	Shape(Shape&& rhs) = default;
 	const vector<Vector3d>& getVertices() const
 	{
 		return v;
