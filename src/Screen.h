@@ -2,10 +2,10 @@
 #include "Shape.h"
 #include "Vector2D.h"
 #include "Vector3d.h"
-#include <glut.h>
 #include <string>
 #include <array>
 #include <atomic>
+#include <glut.h>
 
 namespace GameLib
 {
@@ -131,6 +131,7 @@ public:
 		//glBegin(GL_POLYGON);
 		// Draw Red
 		glPushMatrix();
+
 		glColor3f(color[0], color[1], color[2]);
 		GLUquadric* quad = gluNewQuadric();
 

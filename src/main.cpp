@@ -1,18 +1,18 @@
 #pragma once
 #define _USING_V110_SDK71_
 #include <windows.h>  // for MS Windows
+#include <cstdlib> // needs to be included before glut to fix gluts stupid global namespace declaration of 'exit'
 #include <glut.h>  // GLUT, include glu.h and gl.h
 #include <string>
 #include <sstream>
 #include "GravityGame.h"
 #include <iostream>
+#include <absl\strings\str_cat.h>
 using namespace std;
 
 inline string intToString(int num)
 {
-	std::stringstream ss;
-	ss << num;
-	return ss.str();
+	return absl::StrCat(num);
 }
 
 int main(int argc, char** argv)
