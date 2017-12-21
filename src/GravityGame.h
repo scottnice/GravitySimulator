@@ -8,9 +8,9 @@
 #include <future>
 #include "Vector2D.h"
 #include "Vector3d.h"
-#include "Screen.h"
 #include <atomic>
 #include "amp_physics.h"
+#include "Screen.h"
 using namespace std;
 using namespace GameLib;
 
