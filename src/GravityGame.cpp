@@ -13,9 +13,11 @@ Vector2D GravityGame::viewPoint;
 bool GravityGame::isRunning;
 bool GravityGame::paused;
 bool GravityGame::isViewPoint;
+vector<size_t> GravityGame::lightPositions;
 
-GravityGame::GravityGame() : s1(15, 0.2), s2(100, 0.25)
+GravityGame::GravityGame()
 {
+	this->init();
 	srand(time(NULL));
 	isRunning = false;
 	paused = false;

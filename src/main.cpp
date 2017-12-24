@@ -1,5 +1,7 @@
 #pragma once
-#define _USING_V110_SDK71_
+#define _USING_V141_
+#define GLEW_STATIC
+#include "Gl/glew.h"
 #include <windows.h>  // for MS Windows
 #include <cstdlib> // needs to be included before glut to fix gluts stupid global namespace declaration of 'exit'
 #include <glut.h>  // GLUT, include glu.h and gl.h
@@ -22,7 +24,6 @@ int main(int argc, char** argv)
 	{
 		glutInit(&argc, argv);
 		GravityGame g;
-		g.init();
 		g.play();
 	}
 	catch(exception & e)

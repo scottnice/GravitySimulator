@@ -26,8 +26,6 @@ private:
 	static bool paused;
 	FPS_Start start;
 	static Screen theScreen;
-	Shape s1;
-	Shape s2;
 	Vector2D translation;
 	static atomic<unsigned int> selected;
 	static bool left;
@@ -70,6 +68,7 @@ public:
 	static vector<RenderComponent> renderComponents;
 	static vector<PhysicsComponent> physicsComponents;
 	static std::unique_ptr< concurrency::array<amp_physics::amp_physics_component, 1> > amp_physicsComponents;
+	static vector<size_t> lightPositions;
 
 	GravityGame();
 	~GravityGame();
@@ -267,18 +266,10 @@ public:
 		if (!isViewPoint){
 			theScreen.centerOn(physicsComponents[selected].location);
 		}
-		else{
-			//theScreen.centerOn(viewPoint);
-		}
 		for (auto& o : spaceObjects)
 		{
-			//physicsComponents[o.physicsComponent].move();
-			auto& rc = renderComponents[o.renderComponent];
-			theScreen.render(rc.getShape(),
-				physicsComponents[o.physicsComponent].location, rc.getColor());
+			theScreen.render(o);
 		}
-		
-		//theScreen.centerOn(Vector2D(1,0));
 		theScreen.update();
 	}
 	
@@ -295,7 +286,7 @@ public:
 	static SpaceObject& createPlanet(Vector3d location, Vector3d velocity, unsigned int mass)
 	{
 		const std::array<float, 3> color = createColorFromRGB(65, 86, 197);
-		float radius = mass / 100.0f;
+		float radius =50;
 		physicsComponents.push_back(PhysicsComponent(location, velocity, mass, radius));
 		renderComponents.push_back(RenderComponent(Shape(30, radius), color));
 		spaceObjects.push_back( SpaceObject (physicsComponents.size()-1, renderComponents.size()-1 ) );
@@ -305,7 +296,7 @@ public:
 	static SpaceObject& createSatellite(Vector3d location, Vector3d velocity, int mass)
 	{
 		const std::array<float, 3> color = createColorFromRGB(244, 164, 96);
-		float radius = mass / 100.0f;
+		float radius = 10;
 		physicsComponents.push_back(PhysicsComponent(location, velocity, mass, radius));
 		renderComponents.push_back(RenderComponent(Shape(30, radius), color));
 		spaceObjects.push_back(SpaceObject(physicsComponents.size() - 1, renderComponents.size() - 1));
@@ -315,10 +306,11 @@ public:
 	static SpaceObject& createStar(Vector3d location, Vector3d velocity, int mass)
 	{
 		const std::array<float, 3> color = createColorFromRGB(255, 255, 0);
-		float radius = mass / 100.0f;
+		float radius = 100;
 		physicsComponents.push_back(PhysicsComponent(location, velocity, mass, radius));
 		renderComponents.push_back(RenderComponent(Shape(30, radius), color));
 		spaceObjects.push_back(SpaceObject(physicsComponents.size() - 1, renderComponents.size() - 1));
+		lightPositions.push_back(spaceObjects.size()-1);
 		return *(spaceObjects.end() - 1);
 	}
 

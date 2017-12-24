@@ -1,12 +1,18 @@
 #pragma once
+#define GLEW_STATIC
 #include "Shape.h"
 #include "Vector2D.h"
 #include "Vector3d.h"
 #include <string>
 #include <array>
 #include <atomic>
+#include "Shader.h"
 #include <glut.h>
-
+#include <memory>
+#include "glm/glm/glm.hpp"
+#include "glm/glm/gtc/matrix_transform.hpp"
+#include "glm/glm/gtc/type_ptr.hpp"
+class SpaceObject;
 namespace GameLib
 {
 
@@ -22,13 +28,20 @@ private:
 	static int DEFAULT_WIDTH;
 	static int DEFAULT_HEIGHT;
 	int screenId;
-
+	std::unique_ptr<ShaderProgram> program;
+	unsigned int VBO;
+	glm::mat4 view{ 1.0f };
+	static glm::mat4 projection;
+	glm::vec3 front{ 0.0f, 0.0f, -1.0f };
+	glm::vec3 up{ 0.0f, 1.0f, 0.0f };
+	glm::vec3 position;
+	std::array<string, 20> lightPositionStrings;
 public:
 
 	Vector3d centerPoint;
-	float rotatex;
-	float rotatey;
-	float rotatez;
+	float rotatex{2.0f};
+	float rotatey{ 2.0f };
+	float rotatez{ 0.0f };
 	// used to initialize the opengl screen and set the width, height and screen title, also binds member function resize to
 	// friend function reshape that is passed to glutReshapeFunc so the window can be resized whenever a resize event occurs
 	void initializeScreen(std::string title = "test", const int w = Screen::DEFAULT_WIDTH, const int h = Screen::DEFAULT_HEIGHT)
@@ -37,17 +50,22 @@ public:
 		glutInitWindowSize(w, h);   // Set the window's initial width & height
 		glutInitWindowPosition(0, 0); // Position the window's initial top-left corner
 		screenId = glutCreateWindow(title.c_str()); // Create a window with the given title
-		glShadeModel(GL_SMOOTH);
 		glutReshapeFunc(resize);
 
-
-		glClearDepth(1.0f);
+		glewInit();
 		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
+
+		auto& vertexShader = make_vertex_shader(AMBIENT_LIGHTING_VERTEX_SHADER);
+		auto& fragmentShader = make_fragment_shader(POINT_LIGHT_FRAGMENT_SHADER);
+		program = std::make_unique<ShaderProgram>(vertexShader, fragmentShader);
+
+		glGenBuffers(1, &VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		initializeShaderContext(Shape{ 0,0 });
 	}
 
 	// used to initialize the open gl viewport window
-	static inline void resize(GLsizei width, GLsizei height)
+	inline static void resize(GLsizei width, GLsizei height)
 	{
 		// Compute aspect ratio of the new window
 	   if (height == 0) height = 1;                // To prevent divide by 0
@@ -56,18 +74,7 @@ public:
 	   // Set the viewport to cover the new window
 	   glViewport(0, 0, width, height);
  
-	   // Set the aspect ratio of the clipping area to match the viewport
-	   glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
-	   glLoadIdentity();             // Reset the projection matrix
-	   if (width >= height) {
-		 // aspect >= 1, set the height from -1 to 1, with larger width
-		  //gluOrtho2D(-1.0 * aspect, 1.0 * aspect, -1.0, 1.0);
-		   gluPerspective(45, aspect, 0.01, -1000.0);
-	   } else {
-		  // aspect < 1, set the width to -1 to 1, with larger height
-		 //gluOrtho2D(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect);
-		   gluPerspective(45, aspect, 0.01, -1000.0);
-	   }
+	   projection = glm::perspective(glm::radians(45.0f), aspect, 0.1f, 1000000.0f);
 	}
 
 	int screen_width()
@@ -88,14 +95,11 @@ public:
 	void centerOn(const Vector3d& center)
 	{
 		centerPoint = center;
-		glMatrixMode(GL_MODELVIEW);      // To operate on Model-View matrix
-		glLoadIdentity();                // Reset the model-view matrix
-		//glTranslatef((0-centerPoint.x)*magnitude, (0-centerPoint.y)*magnitude, 0.0f); 
-
-		glRotatef(rotatex, 1, 0, 0);
-		glRotatef(rotatey, 0, 1, 0);
-		glRotatef(rotatez, 0, 0, 1);
-		glTranslatef((0 - centerPoint.x), (0 - centerPoint.y), (0 - centerPoint.z) - magnitude );
+		//view = glm::mat4(1.0f);
+		position = glm::vec3{ center.x, center.y, center.z + magnitude };
+		view = glm::lookAt(position, position + front, up);
+		//view = glm::scale(view, glm::vec3(1/magnitude));
+		view = glm::rotate(view, glm::degrees(45.0f), glm::vec3(rotatex, 0, rotatey));
 	}
 
 	Vector2D applyMagnitude(const Vector2D& point) const{
@@ -126,42 +130,13 @@ public:
 	
 	~Screen();
 
-	void render(const Shape& s, const Vector3d& location, std::array<float, 3> color)
-	{
-		//glBegin(GL_POLYGON);
-		// Draw Red
-		glPushMatrix();
+	void initializeShaderContext(const Shape & s);
 
-		glColor3f(color[0], color[1], color[2]);
-		GLUquadric* quad = gluNewQuadric();
-
-		glTranslatef(location.x, location.y, location.z);
-		gluSphere(quad, s.getRadius(), 20, 20);
-
-		gluDeleteQuadric(quad);
-		glPopMatrix();
-		/**for (const auto& vertex : v)
-		{
-			float x = (vertex.x + location.x);//*magnitude;
-			float y = (vertex.y + location.y);//*magnitude;
-			glVertex3f(x, y, 0.0f);
-			//glVertex2f((vertex.x + location.x)*magnitude, (vertex.y + location.y)*magnitude);
-		}**/
-
-		//glEnd();
-		
-		glBegin(GL_POINTS);
-		glColor3f(color[0], color[1], color[2]);
-		glVertex3f(location.x, location.y, location.z);
-		glEnd();
-		
-		
-		
-	}
+	void render(SpaceObject& spaceObject);
 
 	void refresh()
 	{
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Set background color to black and opaque
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);         // Clear the color buffer (background)
 	}
 

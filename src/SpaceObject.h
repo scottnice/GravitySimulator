@@ -1,6 +1,4 @@
 #pragma once
-#include <climits>
-#include "Vector2D.h"
 #include "PhysicsComponent.h"
 #include "RenderComponent.h"
 class SpaceObject

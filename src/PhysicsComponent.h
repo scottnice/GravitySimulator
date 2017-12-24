@@ -11,7 +11,6 @@ class PhysicsComponent : public Component
 {
 
 private:
-
 	inline bool checkCollision(const PhysicsComponent& p)
 	{
 		Vector3d tangent = p.location - location;
@@ -30,11 +29,6 @@ private:
 	static inline float calculateSquaredDistance(const Vector3d& tangent)
 	{
 		return powf(tangent.x, 2) + powf(tangent.y, 2) + powf(tangent.z,2);
-	}
-	// distance^2 = a^2 + b^2
-	static inline float calculateDistance(const Vector3d& tangent)
-	{
-		return sqrtf(calculateSquaredDistance(tangent));
 	}
 
 	inline Vector3d forceGravity(const PhysicsComponent& p, const float G = 0.1f) const
@@ -58,6 +52,12 @@ public:
 	Vector3d velocity;
 	unsigned int mass;
 	unsigned int radius;
+
+	// distance^2 = a^2 + b^2
+	static inline float calculateDistance(const Vector3d& tangent)
+	{
+		return sqrtf(calculateSquaredDistance(tangent));
+	}
 
 	inline void Update2(const vector<PhysicsComponent>* const p)
 	{

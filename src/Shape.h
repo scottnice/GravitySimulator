@@ -2,7 +2,9 @@
 #include <vector>
 #include <cmath>
 #include "Vector3d.h"
-
+#include "Gl/glew.h"
+#include <array>
+#include "PhysicsComponent.h"
 namespace GameLib
 {
 class Shape
@@ -12,15 +14,64 @@ private:
 	#define PI 3.1415926535897932384626433832795f
 	vector<Vector3d> v;
 public:
+	unsigned int glVertexArrayID;
 	Shape(int vertices, float radius) : radius(radius)
 	{
-		v.reserve(vertices);
-		for(float i = 0; i < (360); i += (360.0f / vertices))
-		{
-			float x,y;
-			x = this->radius * cosf(i * PI / 180);
-			y = this->radius * sinf(i * PI / 180);
-			v.emplace_back(x, y, 0.0f);
+		std::array<float, 108> vertexes = {
+			-0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f, -0.5f,
+			0.5f,  0.5f, -0.5f,
+			0.5f,  0.5f, -0.5f,
+			-0.5f,  0.5f, -0.5f,
+			-0.5f, -0.5f, -0.5f,
+
+			-0.5f, -0.5f,  0.5f,
+			0.5f, -0.5f,  0.5f,
+			0.5f,  0.5f,  0.5f,
+			0.5f,  0.5f,  0.5f,
+			-0.5f,  0.5f,  0.5f,
+			-0.5f, -0.5f,  0.5f,
+
+			-0.5f,  0.5f,  0.5f,
+			-0.5f,  0.5f, -0.5f,
+			-0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f, -0.5f,
+			-0.5f, -0.5f,  0.5f,
+			-0.5f,  0.5f,  0.5f,
+
+			0.5f,  0.5f,  0.5f,
+			0.5f,  0.5f, -0.5f,
+			0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f,  0.5f,
+			0.5f,  0.5f,  0.5f,
+
+			-0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f, -0.5f,
+			0.5f, -0.5f,  0.5f,
+			0.5f, -0.5f,  0.5f,
+			-0.5f, -0.5f,  0.5f,
+			-0.5f, -0.5f, -0.5f,
+
+			-0.5f,  0.5f, -0.5f,
+			0.5f,  0.5f, -0.5f,
+			0.5f,  0.5f,  0.5f,
+			0.5f,  0.5f,  0.5f,
+			-0.5f,  0.5f,  0.5f,
+			-0.5f,  0.5f, -0.5f
+		};
+		glGenVertexArrays(1, &glVertexArrayID);
+		glBindVertexArray(glVertexArrayID);
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vector3d), (void*)0);
+		glEnableVertexAttribArray(0);
+		for (size_t i = 0; i < vertexes.size(); i += 3) {
+			Vector3d vect{ vertexes[i], vertexes[i + 1], vertexes[i + 2] };
+			auto a = Vector3d(0, 0, 0);
+			auto distance = PhysicsComponent::calculateDistance(a - vect);
+			auto diff = vect - a;
+			diff *= 1 / distance;
+			v.push_back(vect);
 		}
 	}
 	Shape(const Shape&) = default;
