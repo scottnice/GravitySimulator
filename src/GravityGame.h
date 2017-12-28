@@ -34,7 +34,6 @@ private:
 	static const int MAX_COMPONENTS = 500;
 	static Vector2D mouseLoc;
 	static Vector2D viewPoint;
-	static bool isViewPoint;
 	// stubs
 	void addObjects(Vector3d translation, const SpaceObject& centerPoint);
 	// end of stubs
@@ -86,7 +85,6 @@ public:
 		int keyDown = 0;
 		isRunning = true;
 		paused = false;
-		isViewPoint = false;
 		glutDisplayFunc(renderObjects);
 		glutTimerFunc(33, timerFunc, 33);
 		glutSpecialFunc(keyCallBack);
@@ -117,30 +115,6 @@ public:
 			right = false;
 		}
    }
-	static void rotateCamera(){
-		if (right){
-			viewPoint = mouseLoc - theScreen.getCenterPoint();
-			//viewPoint.y = -viewPoint.y;
-			viewPoint.y /= theScreen.screen_height();
-			viewPoint.x /= theScreen.screen_width();
-			//viewPoint = theScreen.applyMagnitude(viewPoint);
-			viewPoint *= 3;
-			theScreen.rotatex += viewPoint.y;
-			theScreen.rotatey += viewPoint.x;
-		}
-	}
-	static void moveObject()
-	{
-		if(!left)
-			return;
-		auto& p = physicsComponents[spaceObjects[selected].physicsComponent];
-		auto c = theScreen.getCenterPoint();
-		auto point = mouseLoc - c;
-		point.y = -point.y;
-		//point.x /= theScreen.screen_width();
-		//point.y /= theScreen.screen_height();
-		//p.velocity += point.Normalize() / 100.0f; 
-	}
 
 	static void keyCallBack(unsigned char key, int x, int y)
 	{
@@ -154,31 +128,44 @@ public:
 				paused = !paused;
 				break;
 			case 'd':
-				++theScreen.rotatez;
+				theScreen.camera->roll(0.1f);
 				break; 
 			case 'a':
-				--theScreen.rotatez;
+				theScreen.camera->roll(-0.1f);
+				break;
+			case 'w':
+				theScreen.camera->pitch(0.1f);
+				break;
+			case 's':
+				theScreen.camera->pitch(-0.1f);
+				break;
+			case 'e':
+				theScreen.camera->yaw(0.1f);
+				break;
+			case 'q':
+				theScreen.camera->yaw(-0.1f);
 				break;
 		}
 	}
 
 	static void keyCallBack(int key, int x, int y)
 	{
+		const int MOVEMENT_SPEED = 30;
 		switch (key)
 		{
 		case GLUT_KEY_UP:       // Up: increase y speed
-			GravityGame::theScreen.zoom_in(); break;
+			GravityGame::theScreen.camera->translate(0, 0, MOVEMENT_SPEED); break;
 		case GLUT_KEY_DOWN:     // Down: decrease y speed
-			GravityGame::theScreen.zoom_out(); break;
+			GravityGame::theScreen.camera->translate(0, 0, -MOVEMENT_SPEED); break;
 		case GLUT_KEY_LEFT:
-			selectPreviousObject(); break;
+			GravityGame::theScreen.camera->translate(MOVEMENT_SPEED, 0, 0);
+			break;
 		case GLUT_KEY_RIGHT:
-			selectNextObject(); break;
+			GravityGame::theScreen.camera->translate(-MOVEMENT_SPEED,0,0); break;
 		}
 	}
 
 	static void selectPreviousObject(){
-		isViewPoint = false;
 		if (GravityGame::selected == 0)
 			GravityGame::selected = GravityGame::spaceObjects.size() - 1;
 		else
@@ -186,7 +173,6 @@ public:
 	}
 
 	static void selectNextObject(){
-		isViewPoint = false;
 		if (GravityGame::selected == GravityGame::spaceObjects.size()-1)
 			GravityGame::selected = 0;
 		else
@@ -201,23 +187,6 @@ public:
 		}
 		glutPostRedisplay();
 		glutTimerFunc(millis, timerFunc, millis);
-	}
-
-	// bad code not actually concurrent
-	static void threadUpdate()
-	{
-		const int size = physicsComponents.size();
-		for(int i = 0; i < size; ++i)
-		{
-			physicsComponents[i].Update(physicsComponents);
-
-			if((i+1) < size)
-			{
-				auto &func = [&](){physicsComponents[i+1].Update(physicsComponents);};
-				thread t(func);
-				t.join();
-			}
-		}
 	}
 
 	static void asyncUpdate()
@@ -246,26 +215,17 @@ public:
 
 	static void updateComponents()
 	{
-		//asyncUpdate();
 		amp_update();
-		//for (auto& p : physicsComponents)
-			//p.Update(physicsComponents);
-		//for (auto& p : physicsComponents)
-			//p.move();
+		//asyncUpdate();
 	}
 
 	static void renderObjects()
 	{
 		if (!paused){
 			updateComponents();
-			moveObject();
-			rotateCamera();
+			theScreen.rotation += 0.01f;
 		}
 		theScreen.refresh();
-		
-		if (!isViewPoint){
-			theScreen.centerOn(physicsComponents[selected].location);
-		}
 		for (auto& o : spaceObjects)
 		{
 			theScreen.render(o);

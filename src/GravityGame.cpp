@@ -12,7 +12,6 @@ Vector2D GravityGame::mouseLoc;
 Vector2D GravityGame::viewPoint;
 bool GravityGame::isRunning;
 bool GravityGame::paused;
-bool GravityGame::isViewPoint;
 vector<size_t> GravityGame::lightPositions;
 
 GravityGame::GravityGame()
