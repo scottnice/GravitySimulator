@@ -29,7 +29,7 @@ private:
 	static glm::mat4 projection;
 	glm::vec3 front{ 0.0f, 0.0f, -1.0f };
 	glm::vec3 up{ 0.0f, 1.0f, 0.0f };
-	static const size_t MAX_LIGHT_POSITIONS = 20;
+	static const size_t MAX_LIGHT_POSITIONS = 100;
 	std::array<string, MAX_LIGHT_POSITIONS> lightPositionStrings;
 public:
 	float rotation = 0.0f;
@@ -46,6 +46,7 @@ public:
 
 		glewInit();
 		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 
 		auto& vertexShader = make_vertex_shader(util::loadFile("../src/shaders/point_light.vs"));
 		auto& fragmentShader = make_fragment_shader(util::loadFile("../src/shaders/point_light.fs"));

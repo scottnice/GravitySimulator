@@ -84,6 +84,14 @@ namespace GameLib {
 		for (auto& s : initList) {
 			glAttachShader(shaderProgram, s->shader);
 		}
+		linkShaders();
+	}
+
+	void ShaderProgram::unpackVariadic(Shader const& first) {
+		glAttachShader(shaderProgram, first.shader);
+		linkShaders();
+	}
+	void ShaderProgram::linkShaders() {
 		glLinkProgram(shaderProgram);
 
 		int  success;

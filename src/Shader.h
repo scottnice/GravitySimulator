@@ -20,9 +20,7 @@ namespace GameLib{
 	{
 	public:
 		template<typename... shaderlist>
-		ShaderProgram(shaderlist const&... shaders):shaderProgram(glCreateProgram()) {
-			unpackVariadic(shaders...);
-		}
+		ShaderProgram(const Shader& first, shaderlist const&... shaders);
 		ShaderProgram(std::initializer_list<Shader*> initList);
 		~ShaderProgram();
 		ShaderProgram(const ShaderProgram&) = delete;
@@ -33,7 +31,6 @@ namespace GameLib{
 		void setVec3(const std::string& name, const float x, const float y, const float z) const;
 		void setInt(const std::string & name, const int i) const;
 		void setMat4(const std::string& name, const glm::mat4& mat) const;
-
 		void setFloat(const char* name, const float f) const;
 		void setVec3(const char* name, const glm::vec3& vec) const;
 		void setVec3(const char* name, const float x, const float y, const float z) const;
@@ -41,31 +38,24 @@ namespace GameLib{
 		void setMat4(const char* name, const glm::mat4& mat) const;
 	private:
 		unsigned int shaderProgram;
-
-		template<typename head>
-		void unpackVariadic(head const& first) {
-
-			glAttachShader(shaderProgram, first.shader);
-			glLinkProgram(shaderProgram);
-
-			int  success;
-			char infoLog[512];
-			glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-			if (!success)
-			{
-				glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-				std::cout << "ERROR::Shader Program Link Failed\n" << infoLog << std::endl;
-				throw std::exception(infoLog);
-			}
-		}
-		template<typename head, typename... shaderlist>
-		void unpackVariadic(head const& first, shaderlist const&... therest) {
-			glAttachShader(shaderProgram, first.shader);
-			unpackVariadic(therest...);
-		}
+		void unpackVariadic(Shader const& first);
+		template<typename... shaderlist>
+		void unpackVariadic(Shader const& first, shaderlist const&... therest);
+		void linkShaders();
 	};
 
-	extern Shader make_vertex_shader(const std::string & shader);
-	extern Shader make_fragment_shader(const std::string & shader);
+	template<typename... shaderlist>
+	ShaderProgram::ShaderProgram(const Shader& first, shaderlist const&... shaders):shaderProgram(glCreateProgram()) {
+		unpackVariadic(first, shaders...);
+	}
+
+	template<typename... shaderlist>
+	void ShaderProgram::unpackVariadic(Shader const& first, shaderlist const&... therest) {
+		glAttachShader(shaderProgram, first.shader);
+		unpackVariadic(therest...);
+	}
+
+	Shader make_vertex_shader(const std::string & shader);
+	Shader make_fragment_shader(const std::string & shader);
 }
 

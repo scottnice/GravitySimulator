@@ -4,7 +4,7 @@ out vec4 FragColor;
 in vec3 Normal;  
 in vec3 FragPos;  
 uniform int numberLights;
-uniform vec3 lightPos[20]; 
+uniform vec3 lightPos[100]; 
 uniform vec3 viewPos; 
 uniform vec3 lightColor;
 uniform vec3 objectColor;
