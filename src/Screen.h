@@ -55,7 +55,7 @@ public:
 		glGenBuffers(1, &VBO);
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		initializeShaderContext(Shape{ 0,0 });
-		camera = make_unique<Camera>();
+		camera = make_unique<Camera>(glm::vec3{0,0,3000});
 	}
 
 	// used to initialize the open gl viewport window
