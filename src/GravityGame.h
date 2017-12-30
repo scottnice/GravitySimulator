@@ -226,8 +226,9 @@ public:
 			theScreen.rotation += 0.01f;
 		}
 		if (left) {
+			left = false;
 			auto& viewport = theScreen.glViewPort();
-			glm::vec3 mouseLocation{ mouseLoc.x , viewport[3] - mouseLoc.y, 0.0f};
+			glm::vec3 mouseLocation{ mouseLoc.x , viewport[3] - mouseLoc.y, -0.1f};
 			glReadPixels(mouseLocation.x, mouseLocation.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouseLocation.z);
 			glm::mat4 view = theScreen.camera->view();
 			glm::vec3 worldCoordinates = glm::unProject(mouseLocation, view, theScreen.projection, viewport);

@@ -7,10 +7,10 @@ class Camera {
 	glm::vec3 m_pos;
 	glm::quat m_orient;
 public:
-	Camera() : m_pos(0, 0, 0), m_orient(0,0,-1,0) {}
+	Camera() : m_pos(0, 0, 0), m_orient(0,0,1,0) {}
 	Camera(const Camera &) = default;
 
-	Camera(const glm::vec3 &pos) : m_pos(pos), m_orient(0, 0, -1, 0) {}
+	Camera(const glm::vec3 &pos) : m_pos(pos), m_orient(0, 0, 1, 0) {}
 	Camera(const glm::vec3 &pos, const glm::quat &orient) : m_pos(pos), m_orient(orient) {}
 
 	Camera &operator =(const Camera &) = default;
