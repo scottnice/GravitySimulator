@@ -16,6 +16,7 @@ public:
 	Camera &operator =(const Camera &) = default;
 
 	const glm::vec3 &position() const { return m_pos; }
+	void setPosition(glm::vec3 const & pos) { m_pos = pos; }
 	const glm::quat &orientation() const { return m_orient; }
 
 	glm::mat4 view() const { return glm::translate(glm::mat4_cast(m_orient), m_pos); }

@@ -11,6 +11,7 @@
 #include <atomic>
 #include "amp_physics.h"
 #include "Screen.h"
+#include "Intersect.h"
 using namespace std;
 using namespace GameLib;
 
@@ -216,7 +217,6 @@ public:
 	static void updateComponents()
 	{
 		amp_update();
-		//asyncUpdate();
 	}
 
 	static void renderObjects()
@@ -224,6 +224,22 @@ public:
 		if (!paused){
 			updateComponents();
 			theScreen.rotation += 0.01f;
+		}
+		if (left) {
+			auto& viewport = theScreen.glViewPort();
+			glm::vec3 mouseLocation{ mouseLoc.x , viewport[3] - mouseLoc.y, 0.0f};
+			glReadPixels(mouseLocation.x, mouseLocation.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouseLocation.z);
+			glm::mat4 view = theScreen.camera->view();
+			glm::vec3 worldCoordinates = glm::unProject(mouseLocation, view, theScreen.projection, viewport);
+			glm::Ray ray{ theScreen.camera->position(), worldCoordinates - theScreen.camera->position() };
+			for (auto& p : physicsComponents) {
+				glm::vec3 objectLocation{ p.location.x, p.location.y, p.location.z};
+				glm::Sphere sp{ objectLocation, p.radius };
+				if (glm::intersects(ray, sp)) {
+					theScreen.camera->setPosition(-objectLocation);
+					break;
+				}
+			}
 		}
 		theScreen.refresh();
 		for (auto& o : spaceObjects)

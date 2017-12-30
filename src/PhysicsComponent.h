@@ -51,7 +51,7 @@ public:
 	Vector3d location;
 	Vector3d velocity;
 	unsigned int mass;
-	unsigned int radius;
+	float radius;
 
 	// distance^2 = a^2 + b^2
 	static inline float calculateDistance(const Vector3d& tangent)
@@ -111,7 +111,7 @@ public:
 		velocity += p.velocity;
 	}
 
-	PhysicsComponent(Vector3d location, Vector3d velocity, unsigned short mass, unsigned short radius);
+	PhysicsComponent(Vector3d location, Vector3d velocity, unsigned short mass, const float radius);
 	~PhysicsComponent();
 	PhysicsComponent& operator =(const amp_physics::amp_physics_component& other) restrict(cpu);
 };

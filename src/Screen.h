@@ -26,12 +26,10 @@ private:
 	int screenId;
 	std::unique_ptr<ShaderProgram> program;
 	unsigned int VBO;
-	static glm::mat4 projection;
-	glm::vec3 front{ 0.0f, 0.0f, -1.0f };
-	glm::vec3 up{ 0.0f, 1.0f, 0.0f };
 	static const size_t MAX_LIGHT_POSITIONS = 100;
 	std::array<string, MAX_LIGHT_POSITIONS> lightPositionStrings;
 public:
+	static glm::mat4 projection;
 	float rotation = 0.0f;
 	std::unique_ptr<Camera> camera;
 	Vector3d centerPoint;
@@ -75,7 +73,9 @@ public:
 	{return glutGet(GLUT_WINDOW_WIDTH);}
 	int screen_height()
 	{return glutGet(GLUT_WINDOW_HEIGHT);}
-
+	glm::vec4 glViewPort() {
+		return glm::vec4{ glutGet(GLUT_INIT_WINDOW_X), glutGet(GLUT_INIT_WINDOW_Y), screen_width(), screen_height() };
+	}
 	Vector2D getCenterPoint()
 	{
 		return Vector2D(screen_width() / 2.0F, screen_height() / 2.0F);

@@ -2,7 +2,7 @@
 #include "amp_physics.h"
 
 
-PhysicsComponent::PhysicsComponent(Vector3d location, Vector3d velocity, unsigned short mass, unsigned short radius) : location(location), velocity(velocity), mass(mass), radius(radius)
+PhysicsComponent::PhysicsComponent(Vector3d location, Vector3d velocity, unsigned short mass, const float radius) : location(location), velocity(velocity), mass(mass), radius(radius)
 {
 }
 
