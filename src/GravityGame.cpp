@@ -55,7 +55,6 @@ void GravityGame::addObjects(Vector3d translation, const SpaceObject& centerPoin
 	auto a = createStar(translation, Vector3d(0, 0, 0), rand() % 1500 + 700);
 	PhysicsComponent& physicsComponent = a.getPhysicsComponent();
 	physicsComponent.orbitObject(centerPoint.getPhysicsComponent(), outerRotation);
-	physicsComponent.radius = 1;
 
 	const int max = rand() % 8 + 1;
 	for (int i = 0; i < max; ++i){

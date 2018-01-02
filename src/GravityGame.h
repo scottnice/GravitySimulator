@@ -12,6 +12,7 @@
 #include "amp_physics.h"
 #include "Screen.h"
 #include "Intersect.h"
+#include <map>
 using namespace std;
 using namespace GameLib;
 
@@ -227,19 +228,27 @@ public:
 		}
 		if (left) {
 			left = false;
-			auto& viewport = theScreen.glViewPort();
-			glm::vec3 mouseLocation{ mouseLoc.x , viewport[3] - mouseLoc.y, -0.1f};
+			glm::vec4 viewport = theScreen.glViewPort();
+			glm::vec3 mouseLocation{ mouseLoc.x, viewport[3] - mouseLoc.y, 0.1f };
 			glReadPixels(mouseLocation.x, mouseLocation.y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouseLocation.z);
-			glm::mat4 view = theScreen.camera->view();
+			const glm::mat4& view = theScreen.camera->view();
+			const glm::vec3& cameraPosition = theScreen.camera->position();
 			glm::vec3 worldCoordinates = glm::unProject(mouseLocation, view, theScreen.projection, viewport);
-			glm::Ray ray{ theScreen.camera->position(), worldCoordinates - theScreen.camera->position() };
+			glm::vec3 diff = worldCoordinates - cameraPosition;
+			glm::Ray ray{ cameraPosition, diff };
+			std::map<float, glm::vec3> intersectPoints;
 			for (auto& p : physicsComponents) {
-				glm::vec3 objectLocation{ p.location.x, p.location.y, p.location.z};
+				glm::vec3 objectLocation{ p.location.x, p.location.y, p.location.z };
 				glm::Sphere sp{ objectLocation, p.radius };
 				if (glm::intersects(ray, sp)) {
-					theScreen.camera->setPosition(-objectLocation);
-					break;
+					float distance = glm::distance(cameraPosition, objectLocation);
+					intersectPoints[distance] = objectLocation;
 				}
+			}
+			if (intersectPoints.size()) {
+				auto location = -intersectPoints.begin()->second;
+				location = glm::normalize(cameraPosition - location) * 500.0f + location;
+				theScreen.camera->setPosition(location);
 			}
 		}
 		theScreen.refresh();

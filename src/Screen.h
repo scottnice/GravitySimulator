@@ -73,8 +73,9 @@ public:
 	{return glutGet(GLUT_WINDOW_WIDTH);}
 	int screen_height()
 	{return glutGet(GLUT_WINDOW_HEIGHT);}
+
 	glm::vec4 glViewPort() {
-		return glm::vec4{ glutGet(GLUT_INIT_WINDOW_X), glutGet(GLUT_INIT_WINDOW_Y), screen_width(), screen_height() };
+		return glm::vec4{ 0, 0, screen_width(), screen_height() };
 	}
 	Vector2D getCenterPoint()
 	{
